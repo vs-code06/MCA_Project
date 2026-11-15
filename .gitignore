@@ -1,0 +1,9 @@
+*.vvp
+*.vcd
+*.aux
+*.log
+*.out
+*.synctex.gz
+__pycache__/
+.DS_Store
+.matplotlib/
