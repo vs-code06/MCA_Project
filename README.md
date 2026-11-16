@@ -22,19 +22,18 @@
 ---
 
 ## 🎥 Phase I Prototype Video Demonstration (15 Marks)
-- **Demo Video Link:** `[Click Here to Watch Video Demonstration]` *(Add your unlisted YouTube or Google Drive link here)*
+- **Demo Video Link:** [Watch Phase I Prototype Video Demonstration (Google Drive)](https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing)
 - **Duration:** Strictly $\le 5$ minutes
 - **3-Speaker Video Script:** [docs/video/video_presentation_script.md](docs/video/video_presentation_script.md)
   - **Speaker 1 (Start):** Anant Jain — Project overview, introduces all 5 team members, and explains motivation.
   - **Speaker 2 (Middle):** Kartik Mehra — Easy, high-level walkthrough of the Harvard block diagram and separate memory paths.
-  - **Speaker 3 (End):** Vipul Sharma — Shared-memory comparison, terminal demo running `./sim/run_sim.sh`, and benchmark results.
-- **Slide Deck Outline:** [docs/video/presentation_slides_outline.md](docs/video/presentation_slides_outline.md)
+  - **Speaker 3 (End):** Vipul Sharma — Shared-memory comparison, terminal demo running `./sim/run_sim.sh`, RTL walkthrough, and benchmark results.
 
 ---
 
 ## 📑 IEEE Project Report (10 Marks)
 - **Overleaf-Ready LaTeX Source:** [docs/report/IEEE_Project_Report_Phase1.tex](docs/report/IEEE_Project_Report_Phase1.tex)
-- **Comprehensive Markdown Report:** [docs/report/IEEE_Project_Report_Phase1.md](docs/report/IEEE_Project_Report_Phase1.md)
+- **Compiled PDF Report:** [docs/report/Project_Report_Phase1.pdf](docs/report/Project_Report_Phase1.pdf)
 - Contains Abstract, Literature Review, Proposed Solution, Hardware RTL Architecture, Verification Results, Individual Contributions, and IEEE References.
 
 ---

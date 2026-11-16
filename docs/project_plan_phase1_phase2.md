@@ -65,5 +65,6 @@ To ensure Phase 2 is well-scoped, achievable, and easy to explain during the fin
 - [x] Comparative Von Neumann unified baseline with bus arbiter (`rtl/von_neumann/`)
 - [x] Automated testbenches & self-checking assertions (`tb/`)
 - [x] Clean one-click compilation script (`sim/run_sim.sh`)
-- [x] IEEE Project Report source ([IEEE_Project_Report_Phase1.tex](docs/report/IEEE_Project_Report_Phase1.tex)) & Markdown ([IEEE_Project_Report_Phase1.md](docs/report/IEEE_Project_Report_Phase1.md))
+- [x] IEEE Project Report source ([IEEE_Project_Report_Phase1.tex](docs/report/IEEE_Project_Report_Phase1.tex)) and compiled PDF ([Project_Report_Phase1.pdf](docs/report/Project_Report_Phase1.pdf))
 - [x] 3-Speaker Video presentation script ([docs/video/video_presentation_script.md](docs/video/video_presentation_script.md))
+- [x] 5-Minute Prototype Video Demonstration ([Google Drive Link](https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing))

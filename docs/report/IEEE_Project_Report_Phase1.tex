@@ -11,7 +11,7 @@
 
 \begin{document}
 
-\title{Design, RTL Implementation, and Comparative Timing Analysis of a Harvard-Style Instruction and Data Memory Hierarchy\\
+\title{Design, RTL Implementation, and Comparative Timing Analysis of a Harvard-Style Instruction and Data Memory Hierarchy\thanks{Demonstration Video: \url{https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing}. GitHub Repository: \url{https://github.com/vs-code06/MCA_Project.git}}\\
 {\footnotesize \textsuperscript{*}Course: Modern Computer Architecture (MCA) --- Project 9 (Phase I Report)}}
 
 \author{
@@ -161,7 +161,7 @@ Execution Time (@100 MHz) & \textbf{150 ns} & \textbf{220 ns} \\
 In the Harvard architecture, all 7 load/store instructions exhibited concurrent activity on both buses without stalling, achieving a $\text{CPI} = 1.00$. In the shared-memory system, each memory operation incurred a 1-cycle stall, totaling 7 stall cycles and increasing the CPI to $1.47$. This demonstrates an empirical $1.47\times$ speedup for the Harvard organization.
 
 \section{Individual Contributions}
-The project responsibilities for Phase~I were divided among team members as follows:
+The project responsibilities for Phase~I were divided among team members as follows (Full Video Demonstration: \url{https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing}):
 \begin{itemize}
     \item \textbf{Anant Jain (2401010066):} Led the instruction subsystem design, implementing \texttt{program\_counter.v} and \texttt{instruction\_memory.v}. Co-authored the Literature Review and delivered Part~1 of the video demonstration.
     \item \textbf{Vipul Sharma (2401010505):} Implemented \texttt{data\_memory.v} and integrated the top-level \texttt{harvard\_top.v} system. Authored the report framework and delivered Part~3 of the video demonstration.

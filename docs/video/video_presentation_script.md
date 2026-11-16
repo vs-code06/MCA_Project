@@ -1,7 +1,8 @@
 # 5-Minute Prototype Video Demonstration Script
 ## Project 9: Instruction and Data Memory Hierarchy
 **Course:** Modern Computer Architecture (MCA) — Phase I Evaluation (15 Marks)  
-**Total Target Duration:** 4 minutes 35 seconds (Strictly $< 5$ minutes)
+**Total Target Duration:** 4 minutes 35 seconds (Strictly $< 5$ minutes)  
+**Video Recording Link:** [https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing](https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing)
 
 ---
 
@@ -67,31 +68,41 @@
 
 ---
 
-### [2:45 – 4:35] Part 3: Von Neumann Comparison, Live Simulation & Results
+### [2:45 – 4:35] Part 3: Von Neumann Comparison, Live Simulation & Code Walkthrough
 **Speaker:** Vipul Sharma  
-**Visual on Screen:** Slide showing `docs/diagrams/von_neumann_comparison_diagram.png`, then switch to live Terminal and run `./sim/run_sim.sh`.
+**Visual on Screen:** 
+1. Show slide or image `docs/diagrams/von_neumann_comparison_diagram.png`.
+2. Switch to Terminal window and run `./sim/run_sim.sh`.
+3. Switch to VS Code and show `rtl/harvard/harvard_top.v` (lines 43–60).
 
 > *"Thank you, Kartik! I am Vipul Sharma.*
 >
-> *To prove that the Harvard architecture is actually faster, we also designed a comparative **Shared-Memory Von Neumann baseline** in Verilog.*
+> *(Pointing to `von_neumann_comparison_diagram.png`)*  
+> *To prove the real benefit of Harvard architecture, we also designed an equivalent shared-memory Von Neumann baseline in Verilog.*
 >
-> *In our shared-memory module, code and data are placed in a single unified memory. We added a **Bus Arbiter**: whenever a `LOAD` or `STORE` instruction occurs, the single bus is busy transferring data. The arbiter is forced to stall the CPU and Program Counter for one extra clock cycle.*
+> *As you can see in this diagram, code and data share a single memory and a single 32-bit bus. When an instruction like a LOAD or STORE executes, the bus is occupied by the data. The CPU cannot fetch the next instruction at the same time. This creates a structural hazard, and our bus arbiter is forced to stall the CPU for one extra clock cycle.*
 >
-> *Now, let's watch the live simulation in the terminal!*
+> *(Switch to Terminal and run `./sim/run_sim.sh`)*  
+> *Now, let's verify this live in the terminal by running `./sim/run_sim.sh`.*
 >
-> *(Speaker runs command on screen: `./sim/run_sim.sh`)*
+> *First, all self-checking assertions pass 100%—the expected values 30, 5, 35, and 25 are stored accurately in memory.*
 >
-> *Here you can see our automated simulation running on Icarus Verilog:*
-> - *First, all self-checking assertions **PASS 100%**: the values stored into memory and loaded into registers match our expected math perfectly.*
-> - *Now look at this **Benchmark Comparison Table**:*
->   - *On the **Harvard Architecture**, our 15-instruction program finishes in **exactly 15 clock cycles**. There are **7 simultaneous access cycles** where instruction fetch and data read/write happen together, giving an ideal **CPI of 1.00**.*
->   - *On the **Shared-Memory system**, the exact same 15 instructions take **22 clock cycles** because it suffered **7 structural hazard stall cycles**! That increases the CPI to **1.47**.*
+> *In the Harvard execution log, you can see the tag `SIMULTANEOUS ACCESS` across 7 cycles, proving that instruction fetch and data operand access happen at the exact same clock edge.*
 >
-> *This empirically demonstrates that the Harvard architecture provides a **1.47x speedup**, saving over 31% of execution time!*
+> *Now, looking at the final Architecture Comparison table:*
+> - *Both architectures run the exact same 15 benchmark instructions.*
+> - *Our Harvard architecture finishes in 15 clock cycles with zero stalls, achieving an ideal CPI of 1.00.*
+> - *The Von Neumann architecture takes 22 clock cycles because of 7 structural hazard stalls—one stall for every single load and store! This pushes its CPI to 1.47.*
 >
-> *In Phase II, we will take this foundation further by adding simple Level-1 cache controllers and analyzing memory hierarchy behavior.*
+> *This empirically demonstrates a 1.47x speedup, reducing total execution time by nearly 32%.*
 >
-> *Thank you very much for listening!"*
+> *(Switch to VS Code showing `rtl/harvard/harvard_top.v`)*  
+> *In `harvard_top.v`, you can see how this is implemented in Verilog:*  
+> *We instantiate two completely independent modules—a dedicated `instruction_memory` on its own bus, and a separate `data_memory` with 4-bit byte enables. Because they don't share wires, the processor can fetch instructions and access data in the exact same clock cycle.*
+>
+> *This successfully concludes Phase 1. In Phase 2, our team will build upon this foundation by integrating Level-1 caches. The complete codebase and project report are documented in our repository.*
+>
+> *Thank you!"*
 
 ---
 
