@@ -1,0 +1,196 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{listings}
+
+\begin{document}
+
+\title{Design, RTL Implementation, and Comparative Timing Analysis of a Harvard-Style Instruction and Data Memory Hierarchy\\
+{\footnotesize \textsuperscript{*}Course: Modern Computer Architecture (MCA) --- Project 9 (Phase I Report)}}
+
+\author{
+\IEEEauthorblockN{Anant Jain (2401010066), Vipul Sharma (2401010505), Krishna Gehlot (2401010236),}
+\IEEEauthorblockN{Aditya Kumar (2401010029), and Kartik Mehra (2401020030)}
+\IEEEauthorblockA{\textit{Department of Computer Science and Engineering, Newton School of Technology} \\
+\textit{Rishihood University, Sonipat, India}}
+}
+
+\maketitle
+
+\begin{abstract}
+Memory hierarchy organization is a primary factor governing throughput, latency, and resource contention in computer architectures. The traditional Von Neumann architecture employs a single unified memory and shared bus for both executable code and operands, inevitably creating a structural bottleneck when instruction fetches and data transactions occur simultaneously. In contrast, the Harvard architecture physically separates instruction and data pathways, enabling conflict-free concurrent accesses. This paper presents the Phase~I design, register-transfer level (RTL) implementation in Verilog HDL, and verification of a modular Harvard memory system. The architecture features an independent Program Counter, a word-aligned Instruction Memory, a byte-addressable Data Memory with four byte-enable lanes, an Address Decoder with Memory-Mapped I/O (MMIO), and a functional RISC controller core. To quantify performance, an equivalent unified-memory Von Neumann baseline featuring a two-phase bus arbiter was also designed and evaluated under an identical instruction workload. Behavioral simulations using Icarus Verilog demonstrate that the Harvard architecture achieves an ideal Cycles Per Instruction (CPI) of $1.00$ with zero stall cycles, providing an empirical $1.47\times$ speedup (31.8\% reduction in clock cycles) over the serialized Von Neumann baseline. Finally, individual student contributions and a focused, manageable roadmap for Phase~II are presented.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Harvard Architecture, Von Neumann Bottleneck, Memory Organization, Instruction Memory, Data Memory, Address Decoding, Structural Hazard, Bus Arbitration, Verilog HDL.
+\end{IEEEkeywords}
+
+\section{Introduction}
+As computational speed in microprocessors continues to scale, memory subsystem bandwidth and access latency remain the dominant performance bottlenecks in modern systems \cite{wulf1995hitting}. How instructions and operand data are retrieved from storage establishes the upper bound on execution efficiency.
+
+In computer systems engineering, two foundational memory paradigms exist:
+\begin{enumerate}
+    \item \textbf{Von Neumann Architecture:} Introduced in 1945, this model places program instructions and application data within a single address space accessed over a shared bus \cite{vonneumann1945}. Although simple and flexible, it restricts memory access to one operation at a time: an instruction fetch and an operand load/store cannot execute concurrently across the single bus. This limitation, known as the \textit{Von Neumann Bottleneck}, introduces structural hazards and forces pipeline stalls during memory operations.
+    \item \textbf{Harvard Architecture:} Originating from the early Harvard Mark~I electromechanical system, this architecture separates storage arrays and bus interconnects for instructions and data \cite{hennessy2019computer}. This physical separation enables the processor to fetch an instruction and read or write operand data concurrently within the same clock cycle, effectively eliminating structural bus contention.
+\end{enumerate}
+
+Modern high-performance processors adopt a \textit{Modified Harvard Architecture} at the first level of the memory hierarchy, utilizing separate Level-1 Instruction (L1 I-Cache) and Level-1 Data (L1 D-Cache) caches at the core boundary, backed by a unified Level-2 (L2) cache and main memory \cite{patterson2020computer}.
+
+This paper presents the Phase~I implementation and evaluation for Project~9: \textit{Instruction and Data Memory Hierarchy}. The key objectives achieved in this phase include:
+\begin{itemize}
+    \item Designing a modular, synthesizable Verilog RTL model of a pure Harvard memory architecture with independent pathways.
+    \item Developing supporting memory subsystem blocks: a Program Counter, a word-aligned instruction memory, a 4-byte lane data memory, an address decoder with MMIO mapping, and a functional RISC controller.
+    \item Modeling an equivalent Von Neumann shared-memory baseline with bus arbitration to measure structural hazard stalls.
+    \item Verifying correctness, timing behavior, and simultaneous access through comprehensive simulation and GTKWave waveforms.
+\end{itemize}
+
+\section{Literature Review}
+The theoretical foundations of memory hierarchies have been thoroughly explored in computer architecture literature. John von Neumann's original 1945 report on the EDVAC \cite{vonneumann1945} established the stored-program computer model. Backus \cite{backus1978can} subsequently highlighted the throughput constraint of this shared structure, designating it the ``Von Neumann Bottleneck''---a physical communication channel between the CPU and memory through which data and instructions must be serialized.
+
+To overcome this constraint, pure Harvard architectures were widely adopted in Digital Signal Processors (DSPs), such as the Texas Instruments TMS320 series \cite{smith1997scientist}, and embedded microcontrollers (PIC, AVR). In these domains, inner-loop arithmetic demands concurrent fetching of instructions alongside operand reads to sustain deterministic real-time throughput.
+
+In general-purpose computing, Smith \cite{smith1982cache} analyzed the trade-offs between unified and split memory configurations. While unified storage prevents rigid partitions between code and data, split memory systems double the effective port bandwidth and eliminate instruction cache pollution caused by large data arrays.
+
+As established by Hennessy and Patterson \cite{hennessy2019computer} and Shen and Lipasti \cite{shen2013modern}, in any processor pipeline with overlapping execution stages, a single-port memory creates a structural conflict between the Instruction Fetch (IF) and Memory Access (MEM) stages during \texttt{LOAD} and \texttt{STORE} instructions. Without separate paths, the CPU must stall the IF stage for one cycle, increasing the average Cycles Per Instruction (CPI):
+\begin{equation}
+\text{CPI} = \text{CPI}_{\text{ideal}} + f_{\text{mem}} \times \text{Stall}_{\text{penalty}}
+\end{equation}
+where $f_{\text{mem}}$ represents the fraction of memory instructions in the program, and $\text{Stall}_{\text{penalty}}$ represents the stall cycles incurred.
+
+\section{Proposed Architecture \& Hardware Design}
+The system is implemented in modular, synthesizable Verilog HDL, cleanly structured across three directories: \texttt{rtl/common/}, \texttt{rtl/harvard/}, and \texttt{rtl/von\_neumann/}.
+
+\subsection{Harvard Architecture Organization}
+The Harvard memory system (\texttt{harvard\_top.v}) establishes two independent 32-bit bus channels, as illustrated in Fig.~\ref{fig:harvard-block}:
+\begin{itemize}
+    \item \textbf{Instruction Bus:} Connects the Program Counter to the dedicated Instruction Memory, returning 32-bit instruction words combinationally within the same cycle.
+    \item \textbf{Data Bus:} Operates independently, carrying effective operand addresses, read/write controls, 4-bit byte enables, and write data between the processor core and the Data Memory / MMIO space.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{harvard_architecture_block_diagram.png}
+\caption{Block diagram of the implemented Harvard memory architecture.}
+\label{fig:harvard-block}
+\end{figure}
+
+\subsection{RTL Module Implementation Details}
+\begin{enumerate}
+    \item \textbf{Program Counter (\texttt{program\_counter.v}):} Located in \texttt{rtl/common/}, this module generates 32-bit word-aligned instruction addresses incrementing by 4 on each active clock edge. Supports branch and jump address redirection and pipeline stall freezing.
+    \item \textbf{Instruction Memory (\texttt{instruction\_memory.v}):} Located in \texttt{rtl/harvard/}, this module implements a dedicated 1024-byte read-only storage array (256 words of 32 bits). Words are indexed using address bits $\text{addr}[9:2]$, preloaded with machine instructions via \texttt{\$readmemh}.
+    \item \textbf{Data Memory (\texttt{data\_memory.v}):} Located in \texttt{rtl/harvard/}, this module implements a 1024-byte static RAM organized into four byte-wide lanes (\texttt{mem\_b0} to \texttt{mem\_b3}). This byte-lane structure enables fine-grained write masking for byte, half-word, and word operations.
+    \item \textbf{Address Decoder (\texttt{address\_decoder.v}):} Located in \texttt{rtl/common/}, this module decodes 32-bit data addresses into target select signals:
+    \begin{itemize}
+        \item \texttt{0x0000\_0000} to \texttt{0x0000\_0FFF}: Main Data RAM (1 KB).
+        \item \texttt{0x0000\_F000}: MMIO diagnostic LED register.
+        \item \texttt{0x0000\_F004}: MMIO console character output.
+        \item \texttt{0x0000\_F008}: MMIO hardware cycle counter.
+        \item Unmapped addresses trigger an \texttt{addr\_error} fault.
+    \end{itemize}
+    The decoder also enforces 32-bit word alignment: if $\text{addr}[1:0] \neq 2\text{'b00}$, an \texttt{unaligned\_error} is asserted.
+    \item \textbf{Processor Controller (\texttt{simple\_processor.v}):} Located in \texttt{rtl/common/}, this module implements a functional RISC controller core featuring a 16-register general-purpose register file (R0 hardwired to 0), an ALU, instruction decoding logic, and dual memory interfaces.
+\end{enumerate}
+
+\subsection{Comparative Shared-Memory Baseline}
+To provide an empirical baseline, the Von Neumann architecture was implemented in \texttt{rtl/von\_neumann/shared\_memory\_top.v}. As shown in Fig.~\ref{fig:von-neumann-block}, code and data share a single unified 2048-byte physical memory array.
+
+A two-phase bus arbiter (\texttt{arbiter.v}) resolves access conflicts:
+\begin{itemize}
+    \item \textbf{Phase 1 (\texttt{S\_FETCH}):} The memory bus performs instruction fetch. If the fetched instruction is an ALU operation, it completes immediately. If a \texttt{LOAD} or \texttt{STORE} is detected, the arbiter latches the instruction, asserts \texttt{cpu\_stall = 1}, and switches to Phase 2.
+    \item \textbf{Phase 2 (\texttt{S\_MEM}):} The memory bus is assigned to operand transfer while the Program Counter is held constant, causing a 1-cycle stall.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{von_neumann_comparison_diagram.png}
+\caption{Block diagram of the comparative Von Neumann baseline.}
+\label{fig:von-neumann-block}
+\end{figure}
+
+\section{Verification Methodology \& Results}
+The architecture was verified using Icarus Verilog and GTKWave. A 15-instruction benchmark containing arithmetic, register moves, and interleaved \texttt{STORE} and \texttt{LOAD} instructions was executed across both systems under a 100~MHz clock ($T = 10\text{~ns}$).
+
+\subsection{Functional Assertions}
+Automated self-checking assertions in \texttt{tb/tb\_harvard\_memory.v} validated the final system state:
+\begin{itemize}
+    \item Data Memory [\texttt{0x0100}] = 30 \textbf{[PASS]}
+    \item Data Memory [\texttt{0x0104}] = 5  \textbf{[PASS]}
+    \item Data Memory [\texttt{0x0108}] = 35 \textbf{[PASS]}
+    \item Data Memory [\texttt{0x010C}] = 25 \textbf{[PASS]}
+    \item Register File state (R1=10, R2=20, R3=30, R5=30, R6=5, R7=35, R8=35, R9=25) \textbf{[PASS]}
+\end{itemize}
+
+\subsection{Performance Benchmark Comparison}
+Table~\ref{tab:comparison} and Fig.~\ref{fig:benchmark-chart} summarize the comparative performance metrics. Table~\ref{tab:comparison} fits strictly within a single column width.
+
+\begin{table}[htbp]
+\caption{Performance Comparison: Harvard vs Shared Memory}
+\begin{center}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcc}
+\toprule
+\textbf{Metric} & \textbf{Harvard} & \textbf{Von Neumann} \\
+\midrule
+Instructions Executed & 15 & 15 \\
+Total Clock Cycles & \textbf{15} & \textbf{22} \\
+Structural Hazard Stalls & \textbf{0} & \textbf{7} \\
+Simultaneous Accesses & \textbf{7} & \textbf{0} \\
+Cycles Per Instruction (CPI) & \textbf{1.00} & \textbf{1.47} \\
+Throughput (IPC) & \textbf{1.00} & \textbf{0.68} \\
+Execution Time (@100 MHz) & \textbf{150 ns} & \textbf{220 ns} \\
+\midrule
+\textbf{Speedup} & \multicolumn{2}{c}{\textbf{1.47$\times$ Faster (31.8\% Time Saved)}} \\
+\bottomrule
+\end{tabular*}
+\end{center}
+\label{tab:comparison}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{benchmark_comparison_chart.png}
+\caption{Empirical execution cycles and CPI comparison.}
+\label{fig:benchmark-chart}
+\end{figure}
+
+In the Harvard architecture, all 7 load/store instructions exhibited concurrent activity on both buses without stalling, achieving a $\text{CPI} = 1.00$. In the shared-memory system, each memory operation incurred a 1-cycle stall, totaling 7 stall cycles and increasing the CPI to $1.47$. This demonstrates an empirical $1.47\times$ speedup for the Harvard organization.
+
+\section{Individual Contributions}
+The project responsibilities for Phase~I were divided among team members as follows:
+\begin{itemize}
+    \item \textbf{Anant Jain (2401010066):} Led the instruction subsystem design, implementing \texttt{program\_counter.v} and \texttt{instruction\_memory.v}. Co-authored the Literature Review and delivered Part~1 of the video demonstration.
+    \item \textbf{Vipul Sharma (2401010505):} Implemented \texttt{data\_memory.v} and integrated the top-level \texttt{harvard\_top.v} system. Authored the report framework and delivered Part~3 of the video demonstration.
+    \item \textbf{Krishna Gehlot (2401010236):} Designed \texttt{address\_decoder.v} and \texttt{memory\_controller.v}, implementing address decoding, alignment verification, and MMIO registers.
+    \item \textbf{Aditya Kumar (2401010029):} Developed the comparative Von Neumann baseline (\texttt{shared\_memory\_top.v}) and two-phase bus arbiter (\texttt{arbiter.v}), and formulated benchmark metrics.
+    \item \textbf{Kartik Mehra (2401020030):} Developed the verification testbenches, automated assertion checks, GTKWave waveform analysis, and delivered Part~2 of the video presentation.
+\end{itemize}
+
+\section{Roadmap for Phase II}
+To maintain a well-scoped and manageable progression, Phase~II (weightage: 70\%) will focus on realistic memory hierarchy extensions:
+\begin{enumerate}
+    \item \textbf{Simple Direct-Mapped L1 Caches:} Implement a small, direct-mapped L1 Instruction Cache (I-Cache) and write-through L1 Data Cache (D-Cache) with valid bit arrays and tag comparison logic.
+    \item \textbf{Shared Lower-Level Memory:} Interface both L1 caches with a shared lower-level memory backing, capturing the classic \textit{Modified Harvard} model.
+    \item \textbf{Cache Metrics:} Evaluate empirical cache hit rates, miss penalties, and Average Memory Access Time (AMAT).
+    \item \textbf{Final Report \& Interview Preparation:} Document complete architectural results and prepare viva defense explanations.
+\end{enumerate}
+
+\section{Conclusion}
+Phase~I of Project~9 successfully developed and verified a modular Harvard memory hierarchy in Verilog HDL. Independent instruction and data paths enabled simultaneous access during load and store operations, achieving an ideal CPI of $1.00$. In comparison, the single-bus Von Neumann baseline suffered from structural hazard stalls, resulting in a CPI of $1.47$. The empirical evaluation confirms a $1.47\times$ speedup for the Harvard organization. The separated RTL structure and automated simulation flow establish a solid foundation for Phase~II.
+
+\begin{thebibliography}{00}
+\bibitem{wulf1995hitting} W. A. Wulf and S. A. McKee, ``Hitting the memory wall: Implications of the obvious,'' \textit{ACM SIGARCH Computer Architecture News}, vol. 23, no. 1, pp. 20--24, 1995.
+\bibitem{vonneumann1945} J. von Neumann, ``First Draft of a Report on the EDVAC,'' \textit{IEEE Annals of the History of Computing}, vol. 15, no. 4, pp. 27--75, 1993 (reprint of 1945 report).
+\bibitem{hennessy2019computer} J. L. Hennessy and D. A. Patterson, \textit{Computer Architecture: A Quantitative Approach}, 6th ed. Cambridge, MA: Morgan Kaufmann, 2019.
+\bibitem{patterson2020computer} D. A. Patterson and J. L. Hennessy, \textit{Computer Organization and Design RISC-V Edition}, 2nd ed. Morgan Kaufmann, 2020.
+\bibitem{backus1978can} J. Backus, ``Can programming be liberated from the von Neumann style?'' \textit{Communications of the ACM}, vol. 21, no. 8, pp. 613--641, 1978.
+\bibitem{smith1997scientist} S. W. Smith, \textit{The Scientist and Engineer's Guide to Digital Signal Processing}. San Diego, CA: California Technical Publishing, 1997.
+\bibitem{smith1982cache} A. J. Smith, ``Cache memories,'' \textit{ACM Computing Surveys (CSUR)}, vol. 14, no. 3, pp. 473--530, 1982.
+\bibitem{shen2013modern} J. P. Shen and M. H. Lipasti, \textit{Modern Processor Design: Fundamentals of Superscalar Processors}. Waveland Press, 2013.
+\end{thebibliography}
+
+\end{document}
