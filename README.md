@@ -21,13 +21,9 @@
 
 ---
 
-## 🎥 Phase I Prototype Video Demonstration (15 Marks)
-- **Demo Video Link:** [Watch Phase I Prototype Video Demonstration (Google Drive)](https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing)
-- **Duration:** Strictly $\le 5$ minutes
-- **3-Speaker Video Script:** [docs/video/video_presentation_script.md](docs/video/video_presentation_script.md)
-  - **Speaker 1 (Start):** Anant Jain — Project overview, introduces all 5 team members, and explains motivation.
-  - **Speaker 2 (Middle):** Kartik Mehra — Easy, high-level walkthrough of the Harvard block diagram and separate memory paths.
-  - **Speaker 3 (End):** Vipul Sharma — Shared-memory comparison, terminal demo running `./sim/run_sim.sh`, RTL walkthrough, and benchmark results.
+## 🎥 Phase I Prototype Video Demonstration
+- **Video Link:** [Watch Video Demonstration (Google Drive)](https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing)
+- **Summary:** Walkthrough covering team introduction, Harvard memory block diagram, live simulation demo (`./sim/run_sim.sh`), and comparative benchmark results (1.47x speedup).
 
 ---
 
@@ -167,15 +163,14 @@ Mca_project/
 ├── docs/                              # Project Documentation & Deliverables
 │   ├── report/
 │   │   ├── IEEE_Project_Report_Phase1.tex # Overleaf-ready IEEE LaTeX report
-│   │   └── IEEE_Project_Report_Phase1.md  # Comprehensive Markdown report
+│   │   └── Project_Report_Phase1.pdf      # Compiled project report PDF
 │   ├── diagrams/                    # Publication-quality architectural diagrams (PNG only)
 │   │   ├── harvard_architecture_block_diagram.png
 │   │   ├── von_neumann_comparison_diagram.png
 │   │   ├── benchmark_comparison_chart.png
 │   │   └── timing_diagram.md        # Cycle-by-cycle bus activity analysis
-│   ├── video/                       # Video demonstration assets (15 Marks)
-│   │   ├── video_presentation_script.md   # 3-speaker timed script (Anant, Kartik, Vipul)
-│   │   └── presentation_slides_outline.md # Slide deck presentation outline
+│   ├── video/                       # Video demonstration assets
+│   │   └── video_demonstration.md   # Video link & presentation overview
 │   └── project_plan_phase1_phase2.md # Clean Phase 1 vs Phase 2 roadmap
 ├── scripts/
 │   ├── assembler.py                 # Python assembler for generating .mem files
