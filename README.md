@@ -1,5 +1,6 @@
 # Instruction and Data Memory Hierarchy (Project 9)
 ### Modern Computer Architecture (MCA) — Phase I Project
+**Team: Decoders07**
 
 [![Verilog HDL](https://img.shields.io/badge/Language-Verilog%20HDL-blue.svg)](https://en.wikipedia.org/wiki/Verilog)
 [![Simulator](https://img.shields.io/badge/Simulator-Icarus%20Verilog%20%2B%20GTKWave-brightgreen.svg)](https://steveicarus.github.io/iverilog/)
@@ -7,7 +8,7 @@
 
 ---
 
-## 👥 Team Members & Roles
+## 👥 Team Decoders07 — Members & Roles
 
 | Name | Roll Number | Individual Project Role |
 |---|---|---|

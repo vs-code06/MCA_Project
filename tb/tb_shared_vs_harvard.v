@@ -85,7 +85,7 @@ module tb_shared_vs_harvard;
 
     initial begin
         $display("==================================================================");
-        $display("   ECE/CSE: Modern Computer Architecture - Project 9");
+        $display("   ECE/CSE: Modern Computer Architecture - Project 9 (Decoders07)");
         $display("   Comparative Analysis: Harvard vs Von Neumann Architectures");
         $display("   Authors: Anant Jain, Vipul Sharma, Krishna Gehlot,");
         $display("            Aditya Kumar, Kartik Mehra");

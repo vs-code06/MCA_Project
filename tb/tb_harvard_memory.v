@@ -74,7 +74,7 @@ module tb_harvard_memory;
 
     initial begin
         $display("==================================================================");
-        $display("  ECE/CSE: Modern Computer Architecture - Project 9");
+        $display("  ECE/CSE: Modern Computer Architecture - Project 9 (Decoders07)");
         $display("  Harvard Architecture RTL Simulation & Verification");
         $display("  Authors: Anant Jain, Vipul Sharma, Krishna Gehlot,");
         $display("           Aditya Kumar, Kartik Mehra");
