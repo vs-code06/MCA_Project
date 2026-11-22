@@ -96,9 +96,9 @@ Under an iterative triangular sum workload ($\sum_{k=1}^5 k = 15$), the L1 cache
 | **Empirical Hit Rate (%)** | **82.76%** | **72.73%** |
 | **Empirical Miss Rate (%)** | **17.24%** | **27.27%** |
 | **AMAT (Cycles per Access)** | **1.52 Cycles** | **1.82 Cycles** |
-| **Main Memory Wait States** | \multicolumn{2}{c}{34 Wait Cycles across 17 Transactions} |
-| **Total Instructions Executed** | \multicolumn{2}{c}{30 Instructions} |
-| **Total Clock Cycles Taken** | \multicolumn{2}{c}{98 Clock Cycles} |
+| **Memory Transactions** | 10 Refills | 7 Write-Throughs / Refills |
+| **Shared Memory Latency** | 34 Total Wait Cycles | Across 17 Transactions |
+| **Total System Execution** | **30 Instructions Executed** | **98 Clock Cycles Taken (CPI: 3.27)** |
 
 ![AMAT Comparison Chart](docs/diagrams/phase2_amat_comparison_chart.png)
 
