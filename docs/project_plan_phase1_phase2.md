@@ -68,3 +68,20 @@ To ensure Phase 2 is well-scoped, achievable, and easy to explain during the fin
 - [x] Clean one-click compilation script (`sim/run_sim.sh`)
 - [x] IEEE Project Report source ([IEEE_Project_Report_Phase1.tex](docs/report/IEEE_Project_Report_Phase1.tex)) and compiled PDF ([Project_Report_Phase1.pdf](docs/report/Project_Report_Phase1.pdf))
 - [x] Prototype Video Demonstration ([docs/video/video_demonstration.md](docs/video/video_demonstration.md) & [Google Drive Link](https://drive.google.com/file/d/1w4z_5gOMVCfHtYa4Goujhmb_GkWyMnq4/view?usp=sharing))
+
+---
+
+## 4. Phase 2 Implementation & Verification Checklist (Complete — 100%)
+
+- [x] Level-1 Direct-Mapped Instruction Cache with Line Refill FSM (`rtl/cache/i_cache.v`)
+- [x] Level-1 Direct-Mapped Data Cache with Write-Through Policy & 4-Byte Enables (`rtl/cache/d_cache.v`)
+- [x] Multi-Cycle Shared Main Memory with 2 Wait-State Latency (`rtl/cache/main_memory.v`)
+- [x] Priority Bus Arbiter ($D > I$) resolving shared memory contention (`rtl/cache/main_memory.v`)
+- [x] Top-Level Modified Harvard System Integration (`rtl/cache/modified_harvard_top.v`)
+- [x] Multi-benchmark Assembler generating hex images (`scripts/phase2_assembler.py`)
+- [x] Automated Self-Checking Assertion Testbench (`tb/tb_cache_system.v`) — 100% PASS
+- [x] 3-Way Comparative Benchmark Testbench (`tb/tb_phase2_amat.v`) — Harvard vs Von Neumann vs Caches
+- [x] One-click compilation and execution script (`sim/run_phase2_sim.sh`)
+- [x] Publication-Grade Architectural Diagrams (`scripts/generate_phase2_diagrams.py` -> `docs/diagrams/`)
+- [x] Comprehensive Interview Defense & Viva Guide for All 5 Members (`docs/interview_defense_guide.md`)
+- [x] Final IEEE Project Report Source (`docs/report/IEEE_Project_Report_Phase2.tex`)
