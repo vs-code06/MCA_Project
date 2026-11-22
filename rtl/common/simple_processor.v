@@ -107,7 +107,7 @@ module simple_processor #(
         data_addr  = alu_result;
         data_wdata = rs2_val;
 
-        if (!halted && !external_stall) begin
+        if (!halted) begin
             if (opcode == 6'h08) begin // LOAD
                 data_req = 1'b1;
                 data_we  = 1'b0;
